@@ -10,7 +10,10 @@ class Build:
             if w == "stretch":
                 btn_div.addStretch()
             else:
-                btn_div.addWidget(w)
+                if hasattr(w, "addWidget"):
+                    btn_div.addLayout(w)
+                else:
+                    btn_div.addWidget(w)
         return btn_div
 
     @staticmethod

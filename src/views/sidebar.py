@@ -1,4 +1,4 @@
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtWidgets import QPushButton, QVBoxLayout, QFrame
 from src.resource.builder import Build
 from src.views.frames.logout import Logout
@@ -11,12 +11,15 @@ class Sidebar(QFrame):
         color: white;
         border: 2px solid black;
         border-radius: 9px;
+        width: 150px;
+        height: 50px;
     """
 
-    def __init__(self, main_window, credentials):
+    def __init__(self, main_window):
         super().__init__()
         self._main_window = main_window
-        self._credentials = credentials
+
+        self.setMaximumWidth(int(self._main_window.width()*0.3))
 
         # widgets
         self._dashboard = None
@@ -42,7 +45,7 @@ class Sidebar(QFrame):
         print("execute")
         headers = ["Dashboard", "Inventory", "Manage User", "Manage Request", "Generate Reports", "Logout"]
         for i, button in enumerate(buttons):
-            button: QPushButton = Build.widget(QPushButton, text=headers[i], width=300, height=75)
+            button: QPushButton = Build.widget(QPushButton, text=headers[i])
             button.setStyleSheet(Sidebar.__BUTTON_STYLES)
             self._layout.addWidget(button)
             self.connectSignals(button, headers[i])
@@ -51,9 +54,9 @@ class Sidebar(QFrame):
     def connectSignals(self, button, name):
         if name.lower() == "logout":
             self._initLogout(button)
-
-        open = self._main_window.showMainContentFrame
-        button.clicked.connect(lambda e: open(name))
+        else:
+            show = self._main_window.showMainContentFrame
+            button.clicked.connect(lambda e: show(name))
 
 
     def _initLogout(self, button):

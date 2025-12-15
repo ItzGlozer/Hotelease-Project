@@ -1,14 +1,17 @@
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import Qt
+
+from src.model.user_data import UserData
 from src.resource.builder import Build
 
 
 class Dashboard(QWidget):
-    def __init__(self, credentials: dict):
+    def __init__(self):
         super().__init__()
+        user = UserData()
 
         # title
-        title = QLabel(f"Welcome {credentials['username'] if credentials['username'] else 'Hecker'}!")
+        title = QLabel(f"Welcome {user.firstname if user.firstname else 'Hecker'}!")
         title.setStyleSheet("font-size: 34px; max-height: 100px;")
 
         """
@@ -48,8 +51,6 @@ class Dashboard(QWidget):
         layout.addLayout(count_layout)
         layout.addLayout(scoop_layout)
 
-        for i in range(3):
-            self.updateTotalItems(i)
 
     """
     UTILITY

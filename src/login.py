@@ -1,7 +1,9 @@
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QWidget, QApplication, QPushButton, QLineEdit, QVBoxLayout, QLabel
+from PyQt6.QtWidgets import QWidget, QApplication, QPushButton, QLineEdit, QVBoxLayout, QLabel, QMessageBox
 import sys
 
+from src.model.user_data import UserData
+from src.model.user_repository import UserRepository
 from src.resource.builder import Build
 from src.main_window import MainWindow
 
@@ -25,8 +27,10 @@ class Login(QWidget):
     }
     """
 
-    def __init__(self):
+    def __init__(self, callback):
         super().__init__()
+        self._callback = callback
+
         self.setFixedSize(350,500)
         self.setWindowTitle("Login")
 
@@ -38,7 +42,6 @@ class Login(QWidget):
 
         self.login_btn = Build.widget(QPushButton, text="Login", width=200)
         self.login_btn.clicked.connect(self.validateCredentials)
-
 
 
         # layout
@@ -56,25 +59,29 @@ class Login(QWidget):
 
 
     def validateCredentials(self):
-        username = str(self.username.text())
-        password = str(self.password.text())
+        credentials = {
+            "username": str(self.username.text()),
+            "password": str(self.password.text()),
+        }
 
-        if username.strip() == "" or password.strip() == "":
-            # ignore if a field is empty
+        if credentials["username"].strip() == "" or credentials["password"].strip() == "":
+            # prompt if a field is empty
+            QMessageBox.information(self, "Notice", "Fields must not be empty!")
             return
 
-        # DEBUG
-        if password.strip() == "12345":
-            credentials = {
-                "username": username,
-                "password": password,
-            }
-            self.switch(credentials)
+        # Validate data provided
+        result = UserRepository.validateCredentials(credentials)
+        if result:
+            # proceed to app if success
+            QMessageBox.information(None, "Notice", "Successfully Logged In!\nPlease wait shortly...")
+            UserData(result)
+            self.switch()
+        else:
+            # prompt if credential is invalid
+            QMessageBox.information(self, "Notice", "Invalid credentials!")
 
 
-    def switch(self, credentials: dict):
+    def switch(self):
         self.close()
-
-        main_window = MainWindow(credentials)
-        main_window.showMaximized()
+        self._callback()
 

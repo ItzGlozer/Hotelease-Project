@@ -5,6 +5,8 @@ from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QGridLayout
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
+        # self.setFixedSize(1280, 720)
+
         self.main_layout = QGridLayout()
         self.main_layout.setSpacing(24)
         self.main_layout.setContentsMargins(50, 20, 50, 50)
@@ -23,8 +25,8 @@ class Window(QMainWindow):
         self.main_layout.addWidget(main, 1, 1)
 
         # Row stretch → height proportions
-        self.main_layout.setRowStretch(0, 2)  # 20%
-        self.main_layout.setRowStretch(1, 8)  # 80%
+        self.main_layout.setRowStretch(0, 1)  # 20%
+        self.main_layout.setRowStretch(1, 9)  # 80%
 
         # Column stretch → width proportions
         self.main_layout.setColumnStretch(0, 2)  # 20%

@@ -2,11 +2,12 @@
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import Qt
 
+from src.model.equipment_repository import EquipmentRepository
 from src.resource.builder import Build
 
 
 class Inventory(QWidget):
-    __headers = ["ID", "Name", "Qty.", "Status", "Actions"]
+    __headers = ["ID", "Name", "Qty.", "Actions"]
 
     def __init__(self):
         super().__init__()
@@ -28,8 +29,8 @@ class Inventory(QWidget):
 
 
         # toolbar
-        self._search_id = QLineEdit("Search ID")
-        self._search_name = QLineEdit("Search Name")
+        self._search_id = Build.widget(QLineEdit, placeholder="Search ID")
+        self._search_name = Build.widget(QLineEdit, placeholder="Search Name")
         self._status = Build.widget(QComboBox, items=["All Status", "In Stock", "Low Stock", "Out of Stock"])
         self._add = Build.widget(QPushButton, text="Add Equipment")
 
@@ -77,7 +78,24 @@ class Inventory(QWidget):
     """
     EVENT
     """
-    def appendData(self, data: list | tuple):
+    def default(self):
+        equipments = EquipmentRepository.fetchAll()
+
+        for equipment in equipments:
+            row = self._table.rowCount()
+            self._table.insertRow(row)
+
+            for col, key in enumerate(equipment.keys()):
+                item_widget = QTableWidgetItem(str(equipment[key]))
+                self._table.setItem(row, col, item_widget)
+
+            # for action DEBUG
+            item_widget = QTableWidgetItem("No Actions")
+            self._table.setItem(row, 3, item_widget)
+
+
+
+    def appendData(self, data: dict):
         row = self._table.rowCount()
         self._table.insertRow(row)
 
