@@ -5,7 +5,9 @@ from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QGridLayout
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
-        # self.setFixedSize(1280, 720)
+        # self.setBaseSize(1280, 720)
+        self.setFixedSize(1280, 720)
+        # self.setMinimumSize(1280, 720)
 
         self.main_layout = QGridLayout()
         self.main_layout.setSpacing(24)

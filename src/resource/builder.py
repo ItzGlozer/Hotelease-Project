@@ -4,8 +4,12 @@ from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout
 class Build:
 
     @staticmethod
-    def flex(*args, direction="row", parent=None) -> QHBoxLayout:
+    def flex(*args, direction="row", parent=None, alignment=None) -> QHBoxLayout:
         btn_div = QVBoxLayout(parent) if direction.lower() == "column" else QHBoxLayout(parent)
+        if alignment:
+            btn_div.setAlignment(alignment)
+
+
         for w in args:
             if w == "stretch":
                 btn_div.addStretch()

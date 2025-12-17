@@ -23,6 +23,11 @@ class Database:
         return conn.cursor(dictionary=dictionary)
 
     @classmethod
+    def commit(cls):
+        conn = cls.connect()
+        conn.commit()
+
+    @classmethod
     def close(cls):
         if cls._conn and cls._conn.is_connected():
             cls._conn.close()

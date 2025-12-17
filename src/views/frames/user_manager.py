@@ -51,6 +51,7 @@ class UserManager(QWidget):
         self._table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
         for col in range(1, self._table.columnCount()):
             self._table.horizontalHeader().setSectionResizeMode(col, QHeaderView.ResizeMode.Stretch)
+        # table size
         self._table.setMaximumWidth(1000)
         self._table.setMinimumHeight(350)
         table_layout = Build.flex(self._table)
