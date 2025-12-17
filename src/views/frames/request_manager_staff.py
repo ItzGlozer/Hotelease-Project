@@ -111,6 +111,9 @@ class RequestManagerStaff(QWidget):
             self._table.setRowHidden(row, not match_found)
 
     def default(self):
+        ...
+
+    def preload(self):
         self.loadRequest()
 
     def _disableButton(self):

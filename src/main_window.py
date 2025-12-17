@@ -21,7 +21,8 @@ class MainWindow(Window):
         self.initUi()
 
         # state
-        self.main_content.defaultState()
+        self.main_content.default()
+        # self.main_content.pre_load()
 
 
 
@@ -48,6 +49,8 @@ class MainWindow(Window):
 
 
 
+
+
 if __name__ == '__main__':
     import sys
     from src.app import App
@@ -57,7 +60,7 @@ if __name__ == '__main__':
         "id": 2,
         "firstname": "Glych",
         "lastname": "Final Boss",
-        "role": "staff",
+        "role": "admin",
     }
     UserData(credentials)
     view = MainWindow()

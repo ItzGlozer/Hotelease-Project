@@ -108,8 +108,10 @@ class Inventory(QWidget):
     EVENT
     """
     def default(self):
-        self.loadInventory()
         ...
+
+    def preload(self):
+        self.loadInventory()
 
 
     def loadInventory(self):

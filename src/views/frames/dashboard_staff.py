@@ -22,3 +22,6 @@ class DashboardStaff(QWidget):
 
     def default(self):
         ...
+
+    def preload(self):
+        ...

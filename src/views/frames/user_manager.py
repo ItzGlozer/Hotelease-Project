@@ -70,6 +70,16 @@ class UserManager(QWidget):
 
 
     def default(self):
+        ...
+
+    def preload(self):
+        self.loadData()
+
+
+    """
+    BACKEND
+    """
+    def loadData(self):
         users = UserRepository.fetchAll()
         for user in users:
             row = self._table.rowCount()

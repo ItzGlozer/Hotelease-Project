@@ -106,8 +106,10 @@ class DashboardAdmin(QWidget):
     EVENT
     """
     def default(self):
-        self.loadLowStocks()
+        ...
 
+    def preload(self):
+        self.loadLowStocks()
 
 
     def loadLowStocks(self):
