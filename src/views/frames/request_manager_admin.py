@@ -79,6 +79,11 @@ class RequestManagerAdmin(QWidget):
             """)
 
 
+    def default(self):
+        ...
+
+    def preload(self):
+        ...
 
     """
     EVENT
@@ -94,7 +99,7 @@ class RequestManagerAdmin(QWidget):
     """
     FRONTEND
     """
-    def connectSignals(self):
+    def connectSignals(self, controller):
         ...
 
     """

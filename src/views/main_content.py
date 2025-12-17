@@ -55,7 +55,7 @@ class MainContent(QFrame):
         if UserData.is_admin:
             ...
 
-    def defaultState(self):
+    def default(self):
         if UserData.is_admin:
             self._user_manager.default()
         self._dashboard.default()
@@ -68,6 +68,14 @@ class MainContent(QFrame):
         time.sleep(0.01)
 
         self._request_manager.show()
+
+
+    def pre_load(self):
+        if UserData.is_admin:
+            self._user_manager.preload()
+        self._dashboard.preload()
+        self._inventory.preload()
+        self._request_manager.preload()
 
 
     def showOverlay(self, form_name, pre_data=None):

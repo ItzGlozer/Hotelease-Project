@@ -74,8 +74,10 @@ class InventoryStaff(QWidget):
     UTILITY
     """
     def default(self):
-        self.loadData()
+        ...
 
+    def preload(self):
+        self.loadData()
 
     """
     FRONTEND

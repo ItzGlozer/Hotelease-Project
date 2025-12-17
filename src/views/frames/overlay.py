@@ -34,6 +34,7 @@ class Overlay(QFrame):
         self._add_equipment_form.default()
         self._add_request_form.default()
 
+
     def hideOverlay(self):
         self.hide()
 
