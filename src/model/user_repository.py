@@ -3,11 +3,21 @@ from src.model.database import Database
 
 class UserRepository:
 
+
     @staticmethod
-    def validateCredentials(credentials: dict):
+    def addUser(userdata: dict):
+        cursor = Database.get_cursor()
+        query = """INSERT INTO users (`username`, `password`, `firstname`, `lastname`) 
+                   VALUES (?, ?, ?, ?)
+                """
+        cursor.execute(query,)
+
+
+    @staticmethod
+    def validateCredentials(userdata: dict) -> dict:
         cursor = Database.get_cursor()
         query = 'SELECT * FROM user WHERE username = %s AND password = %s'
-        cursor.execute(query, (credentials['username'], credentials['password']))
+        cursor.execute(query, (userdata['username'], userdata['password']))
         return cursor.fetchone()
 
     @staticmethod

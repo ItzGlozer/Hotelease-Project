@@ -1,5 +1,9 @@
+import time
+
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtWidgets import QPushButton, QVBoxLayout, QFrame
+
+from src.model.user_data import UserData
 from src.resource.builder import Build
 from src.views.frames.logout import Logout
 
@@ -35,20 +39,25 @@ class Sidebar(QFrame):
         self._layout.setSpacing(50)
 
 
-        # init
-        buttons = [self._dashboard, self._inventory, self._manage_user, self._manage_request, self._generate_reports,
-                   self._logout]
-        self._initButtons(buttons)
+
+        if UserData().role == 'admin':
+            labels = ["Dashboard", "Inventory", "Manage User", "Manage Request", "Generate Reports", "Logout"]
+            buttons = [self._dashboard, self._inventory, self._manage_user, self._manage_request, self._generate_reports,
+                       self._logout]
+        else:
+            labels = ["Dashboard", "Inventory",  "Manage Request", "Logout"]
+            buttons = [self._dashboard, self._inventory, self._manage_user, self._logout]
+
+        self._initButtons(labels, buttons)
 
 
-    def _initButtons(self, buttons: list):
-        print("execute")
-        headers = ["Dashboard", "Inventory", "Manage User", "Manage Request", "Generate Reports", "Logout"]
+    def _initButtons(self, labels: list, buttons: list):
+
         for i, button in enumerate(buttons):
-            button: QPushButton = Build.widget(QPushButton, text=headers[i])
+            button: QPushButton = Build.widget(QPushButton, text=labels[i])
             button.setStyleSheet(Sidebar.__BUTTON_STYLES)
             self._layout.addWidget(button)
-            self.connectSignals(button, headers[i])
+            self.connectSignals(button, labels[i])
 
 
     def connectSignals(self, button, name):

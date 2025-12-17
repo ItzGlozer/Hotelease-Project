@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QLabel,
 from src.resource.builder import Build
 
 
-class RequestManager(QWidget):
+class RequestManagerAdmin(QWidget):
     __STYLES = """
     QLabel {font-size: 36px; max-height: 40px;}
     
@@ -88,8 +88,16 @@ class RequestManager(QWidget):
     """
     FETCH
     """
-    def loadData(self, data):
+    def loadRequest(self):
         ...
 
+    """
+    FRONTEND
+    """
+    def connectSignals(self):
+        ...
 
+    """
+    BACKEND
+    """
 
