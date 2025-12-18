@@ -5,9 +5,7 @@ from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QGridLayout
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
-        # self.setBaseSize(1280, 720)
         self.setFixedSize(1280, 720)
-        # self.setMinimumSize(1280, 720)
 
         self.main_layout = QGridLayout()
         self.main_layout.setSpacing(24)
@@ -17,7 +15,7 @@ class Window(QMainWindow):
         self.setCentralWidget(central_widget)
 
     def theThreeHorsemen(self, topbar, sidebar, main):
-        topbar.setStyleSheet("QFrame {background: #d8d4ea; border-radius:14px;}")
+        # topbar.setStyleSheet("QFrame {}")
         sidebar.setStyleSheet("QFrame {background: #d8d4ea; border-radius:14px;}")
         main.setStyleSheet("QFrame {background: #d8d4ea; border-radius:14px;}")
 

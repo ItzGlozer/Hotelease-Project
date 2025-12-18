@@ -129,9 +129,11 @@ class AddRequestForm(QWidget):
     def _submit(self, controller):
         data = self.__get_input_data
         if data:
+            QMessageBox.information(None, 'Notice', "Submitting Request\nPress OK to continue.")
             controller.submitRequest(data)
             self._overlay.refresh("request")
             self.__closeForm()
+            QMessageBox.information(None, 'Notice', "Request Submitted!")
         else:
             QMessageBox.warning(None, "Notice", "Invalid input!\nQuantity must be a whole number.")
 

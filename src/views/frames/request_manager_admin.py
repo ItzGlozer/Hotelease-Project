@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QLabel,
                              QComboBox, QTableWidget, QPushButton,
                              QHeaderView, QTableWidgetItem, QMessageBox)
 
+from src.model.equipment_repository import EquipmentRepository
 from src.model.request_repository import RequestRepository
 from src.model.user_data import UserData
 from src.resource.builder import Build
@@ -11,15 +12,12 @@ from src.resource.builder import Build
 class RequestManagerAdmin(QWidget):
     __STYLES = """
     QLabel {font-size: 36px; max-height: 40px;}
-    
     QTableWidget {
         background-color: #9c9bdb;
         max-height: 400px;
     }
-    
-    QHeaderView::section {
-        background: #8f8fd6
-    }
+    QTableWidget::item:selected {background: #A0F; color: white;}
+    QHeaderView::section {background: #8f8fd6}
     
     """
     __HEADERS = ["ID", "Equipment", "Qty.", "Type", "Status", "Requested by", "Validated by", "Requested at", "Validated at"]
@@ -48,6 +46,7 @@ class RequestManagerAdmin(QWidget):
         # self._table.setMaximumWidth(1300)
         self._table.setColumnCount(len(self.__HEADERS))
         self._table.setHorizontalHeaderLabels(self.__HEADERS)
+        self._table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self._table.verticalHeader().setVisible(False)
 
         # col size
@@ -64,9 +63,6 @@ class RequestManagerAdmin(QWidget):
 
         # layout
         main_layout = QVBoxLayout(self)
-        # main_layout.setContentsMargins(0, 50, 0, 0)
-        # main_layout.setSpacing(50)
-        # main_layout.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
         main_layout.addWidget(title)
         main_layout.addLayout(toolbar_layout)
         main_layout.addWidget(self._table)
@@ -81,11 +77,15 @@ class RequestManagerAdmin(QWidget):
         for tool in tools:
             tool.setMaximumWidth(150)
             tool.setStyleSheet("""
+            QPushButton, QComboBox {
             background-color: #8f8fd6;
             border: 2px solid black;
             border-radius: 9px;
             font-size: 18px;
             padding: 5 10 5 10; 
+            }
+            QPushButton:hover {background: #c6bce6;}
+            QPushButton:pressed {background: #A0F}
             """)
 
 
@@ -126,39 +126,18 @@ class RequestManagerAdmin(QWidget):
 
     def _cellClicked(self, row, col):
         self._cell_selected = {
-            'id': self._table.item(row, 0).text(),
-            'status': self._table.item(row, 4).text(),
-            'user_id': UserData.user_id
+            'id': self._table.item(row, 0).text(), # request_id
+            'equipment': self._table.item(row, 1).text(), # equipment id
+            'quantity': self._table.item(row, 2).text(),  # quantity of in/out
+            'type': self._table.item(row, 3).text(),
+            'prev_status': self._table.item(row, 4).text(),
+            'user_id': UserData.user_id # validator_id
         }
 
 
     """
     BACKEND
     """
-    # ["ID", "Equipment", "Qty.", "Type", "Status", "Requested by", "Validated by", "Requested at", "Validated at"]
-    def __proxyLoad(self):
-        from datetime import datetime
-        data = [
-            [1, 'Ball', 11, 'stock in', "Approved", 'Glych Phtsmgr', 'Serenity Skyarmy14', datetime.now(),
-             datetime.now()],
-            [2, 'Ball', 22, 'stock out', "Pending", 'Serenity Skyarmy14', None, datetime.now(), None],
-            [3, 'Ball', 33, 'stock in', "Rejected", 'Serenity Skyarmy14', 'Glych Phtsmgr', datetime.now(),
-             datetime.now()],
-            [4, 'Ball', 44, 'stock out', "Pending", 'Glych Phtsmgr', None, datetime.now(), None],
-            [5, 'Ball', 55, 'stock in', "Rejected", 'Xana Ax', 'Ax Hanabi', datetime.now(), datetime.now()],
-            [6, 'Ball', 66, 'stock out', "Pending", 'Ax Hanabi', None, datetime.now(), None],
-        ]
-
-        # ensures table is empty before inserting
-        self._table.setRowCount(0)
-
-        for item in data:
-            row = self._table.rowCount()
-            self._table.insertRow(row)
-
-            for col, value in enumerate(item):
-                self._table.setItem(row, col, QTableWidgetItem(str(value)))
-
     def loadAllRequest(self):
         requests = RequestRepository.fetchAllRequests()
 
@@ -173,18 +152,43 @@ class RequestManagerAdmin(QWidget):
                 self._table.setItem(row, col, QTableWidgetItem(str(item.get(key))))
 
 
+    def _checkStockOut(self) -> bool:
+        """
+        :return: True if (available stock >= requested stock)
+        """
+        name = self._cell_selected.get('equipment')
+        equipment = EquipmentRepository.fetch_equipment(name)
+        equipment_qty = int(equipment['quantity'])
+        stock_out_qty = int(self._cell_selected.get('quantity'))
+
+        if equipment_qty < stock_out_qty:
+            # cancel/false, when stock-out quantity is higher than current inventory stock
+            QMessageBox.warning(None, 'Stock Out', 'Validation Failed!\nRequested stock out is higher than available stock.')
+            return False
+
+        return True # if there are no anomalies then proceed
+
+
     def _submitValidation(self, controller, status: str):
 
         if self._cell_selected is None:
             # prompt user to select a cell before validating
-            self._warning = QMessageBox.warning(self, "Notice", "Please select a cell.")
-
-        if self._cell_selected['status'].lower() != 'pending':
-            # prompt user if request is already validated
-            QMessageBox.warning(self, 'Validation Error', 'Request has been validated already.')
+            self._warning = QMessageBox.warning(None, "Notice", "Please select a cell.")
             return
 
-        # proceed to database
+        if self._cell_selected is not None and self._cell_selected['prev_status'].lower() != 'pending':
+            # prompt user if request is already validated
+            QMessageBox.warning(None, 'Validation Error', 'Request has been validated already.')
+            return
+
+        if self._cell_selected['type'].lower() == 'stock out' and status == 'approved':
+            # if stock-out is approved then validate before update
+            if not self._checkStockOut():
+                # if validation fail then immediately exit
+                # this won't execute statement below
+                return
+
+        # if validation complete
         QMessageBox.information(None, 'Validation', 'Successfully Validated.\nTable will be updated shortly.')
         self._cell_selected['status'] = status # change status base on admin validation
         controller.validateRequest(self._cell_selected) # send to database

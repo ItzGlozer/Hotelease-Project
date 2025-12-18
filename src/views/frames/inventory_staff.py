@@ -15,10 +15,11 @@ class InventoryStaff(QWidget):
     }
     QLineEdit {font-size: 16px;}
     QPushButton {font-size: 18px; padding: 5 20 5 20}
-    QTableWidget {
-        background-color: #9c9bdb;
-    }
+    QPushButton:hover {background: #c6bce6;}
+    QPushButton:pressed {background: #A0F}
     QHeaderView::section {background: #8f8fd6}
+    QTableWidget {background-color: #9c9bdb;}
+    QTableWidget::item:selected {background: #A0F; color: white;}
     """
     __HEADERS = ["ID", "Name", "Qty."]
 
@@ -53,6 +54,7 @@ class InventoryStaff(QWidget):
         self._table.setHorizontalHeaderLabels(self.__HEADERS)
         self._table.verticalHeader().setVisible(False)
         self._table.cellClicked.connect(self._cellClicked)
+        self._table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self._table.setMaximumWidth(400)
 
         # col size
@@ -82,7 +84,7 @@ class InventoryStaff(QWidget):
     """
     FRONTEND
     """
-    def connectSignals(self):
+    def connectSignals(self, controller):
         ...
 
     def _cellClicked(self, row, col):
@@ -108,7 +110,7 @@ class InventoryStaff(QWidget):
 
     def _openRequest(self):
         if self._cell_selected is None:
-            QMessageBox.warning(self, "Warning", "Please select a cell")
+            QMessageBox.warning(None, "Warning", "Please select a cell")
 
         else:
             # open overlay with form and pass in cell data selected

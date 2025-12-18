@@ -22,9 +22,10 @@ class RequestManagerStaff(QWidget):
     font-size: 24px;
     padding: 5 5 5 5;
     }
-    QTableWidget {
-        background-color: #9c9bdb;
-    }
+    QPushButton:hover {background: #c6bce6;}
+    QPushButton:pressed {background: #A0F}
+    QTableWidget {background-color: #9c9bdb;}
+    QTableWidget::item:selected {background: #A0F; color: white;}
     """
     __HEADERS = ["ID", "Equipment", "Qty.", "Type", "Status", "Approved by", "Date", "Date Approved"]
 
@@ -57,6 +58,7 @@ class RequestManagerStaff(QWidget):
         self._table.setColumnCount(len(self.__HEADERS))
         self._table.setHorizontalHeaderLabels(self.__HEADERS)
         self._table.verticalHeader().setVisible(False)
+        self._table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         # size
         self._table.setMaximumHeight(400)
 

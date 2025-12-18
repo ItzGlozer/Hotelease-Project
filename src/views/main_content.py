@@ -67,7 +67,7 @@ class MainContent(QFrame):
         self._hideAll()
         time.sleep(0.01)
 
-        self._user_manager.show()
+        self._dashboard.show()
 
 
     def pre_load(self):

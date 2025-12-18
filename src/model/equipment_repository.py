@@ -15,7 +15,12 @@ class EquipmentRepository:
 
     @staticmethod
     def fetch_equipment(name: str) -> dict:
-        ...
+        cursor = Database.get_cursor()
+        query = "SELECT * FROM `equipment` WHERE `name`=%s;"
+        cursor.execute(query, (name,))
+        result = cursor.fetchone()
+        Database.close()
+        return result
 
     @staticmethod
     def fetchAll(is_dictionary=True) -> list[dict | tuple] :
@@ -52,13 +57,14 @@ class EquipmentRepository:
 
 if __name__ == '__main__':
 
-    equipment = {"name": "sample", "quantity": 20}
+    # equipment = {"name": "sample", "quantity": 20}
     # EquipmentRepository.addEquipment(equipment)
 
 
-    items = EquipmentRepository.fetchAll()
-    for item in items:
-        # Loop through the keys of the current dictionary
-        print(item)
+    items = EquipmentRepository.fetch_equipment('sample')
+    print(items)
+    # for item in items:
+    #     # Loop through the keys of the current dictionary
+    #     print(item)
 
 

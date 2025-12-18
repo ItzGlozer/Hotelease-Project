@@ -18,8 +18,10 @@ class UserManager(QWidget):
     }
     QLineEdit, QComboBox {padding: 2 0 2 10;}
     QPushButton {padding: 5 0 5 0;}
-    QPushButton:pressed {background: #A0F;}
+    QPushButton:hover {background: #c6bce6;}
+    QPushButton:pressed {background: #A0F}
     QTableWidget {background: #9c9bdb;}
+    QTableWidget::item:selected {background: #A0F; color: white;}
     QHeaderView::section {background: #8f8fd6}
 
     """
@@ -48,10 +50,10 @@ class UserManager(QWidget):
         """
         # SEARCH BAR
         # search by name
-        self._search_field = Build.widget(QLineEdit, placeholder="Search by name")
+        self._search_field: QLineEdit = Build.widget(QLineEdit, placeholder="Search by name")
 
         # role dropdown
-        self._role_dropdown = Build.widget(QComboBox, items=['All', 'Admin', 'Staff'])
+        self._role_dropdown: QComboBox = Build.widget(QComboBox, items=['All Positions', 'Admin', 'Staff'])
 
         search_layout = Build.flex(self._search_field, self._role_dropdown)
 
@@ -60,6 +62,7 @@ class UserManager(QWidget):
         self._table.setColumnCount(len(UserManager.__HEADERS))
         self._table.setHorizontalHeaderLabels(UserManager.__HEADERS)
         self._table.verticalHeader().setVisible(False)
+        self._table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self._table.setMaximumWidth(400)
 
         # col size
@@ -88,6 +91,8 @@ class UserManager(QWidget):
         self._update_btn.clicked.connect(self._update)
         self._delete_btn.clicked.connect(lambda _: self._delete(controller))
         self._table.cellClicked.connect(self._cellClicked)
+        self._search_field.textChanged.connect(self._searchOnTextChanged)
+        self._role_dropdown.currentTextChanged.connect(self._searchOnTextSelected)
 
     def default(self):
         ...
@@ -102,6 +107,33 @@ class UserManager(QWidget):
     """
     FRONTEND
     """
+    def _searchOnTextChanged(self, text):
+        to_search = text.lower()
+        for row in range(self._table.rowCount()):
+            match_found = False
+
+            item = self._table.item(row, 1)
+
+            if item and to_search in item.text().lower():
+                match_found = True
+
+            self._table.setRowHidden(row, not match_found)
+
+    def _searchOnTextSelected(self, text):
+        to_search = text.lower()
+        for row in range(self._table.rowCount()):
+            match_found = False
+
+            item = self._table.item(row, 2)
+
+            if item and to_search == item.text().lower():
+                match_found = True
+            elif to_search == 'all positions':
+                match_found = True
+
+            self._table.setRowHidden(row, not match_found)
+
+
     def _cellClicked(self, row, col):
         self._cell_selected = {
             'id': self._table.item(row, 0).text(),

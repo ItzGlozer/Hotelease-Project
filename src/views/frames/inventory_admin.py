@@ -10,14 +10,12 @@ class InventoryAdmin(QWidget):
     __STYLES = """
     QLineEdit, QComboBox {height: 32px; padding-left: 10px;}
     QPushButton {height: 24px}
-    QWidget {
-            background: #8f8fd6;
-    }
+    QPushButton:hover {background: #c6bce6;}
+    QPushButton:pressed {background: #A0F}
+    QWidget {background: #8f8fd6;}
     QLabel {background: transparent;}
-
-    QTableWidget {
-        background-color: #9c9bdb;
-    }
+    QTableWidget {background-color: #9c9bdb;}
+    QTableWidget::item:selected {background: #A0F; color: white;}
     """
     __headers = ["ID", "Name", "Qty.", "Status"]
     _cell_selected = None
@@ -60,6 +58,7 @@ class InventoryAdmin(QWidget):
         self._table.setColumnCount(len(InventoryAdmin.__headers))
         self._table.setHorizontalHeaderLabels(self.__headers)
         self._table.verticalHeader().setVisible(False)
+        self._table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
 
         # col size
         self._table.setColumnWidth(0, 75)

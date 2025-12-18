@@ -24,8 +24,6 @@ class MainWindow(Window):
         self.main_content.default()
         self.main_content.pre_load()
 
-
-
     def initUi(self):
         self.theThreeHorsemen(self.titlebar, self.sidebar, self.main_content)
 
