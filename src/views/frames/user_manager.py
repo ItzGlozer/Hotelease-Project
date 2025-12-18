@@ -1,6 +1,6 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout, QLineEdit, QPushButton, QTableWidget, QHBoxLayout, \
-    QAbstractItemView, QHeaderView, QTableWidgetItem
+    QAbstractItemView, QHeaderView, QTableWidgetItem, QComboBox, QMessageBox
 
 from src.model.user_repository import UserRepository
 from src.resource.builder import Build
@@ -8,78 +8,116 @@ from src.resource.builder import Build
 
 class UserManager(QWidget):
     __STYLES = """
-    QLabel {max-height: 40px;}
     QLabel#title {font-size: 36px; max-height: 40px;}
-    QLineEdit, QPushButton {
+    QLineEdit, QComboBox, QPushButton {
     background: #8f8fd6;
     border: 2px solid black;
     border-radius: 9px;
-    height: 40px;
+    max-width: 150px;
+    font-size: 18px;
     }
-    QTableWidget {background: #9c9bdb; max-height: 400px;}
-    
+    QLineEdit, QComboBox {padding: 2 0 2 10;}
+    QPushButton {padding: 5 0 5 0;}
+    QPushButton:pressed {background: #A0F;}
+    QTableWidget {background: #9c9bdb;}
     QHeaderView::section {background: #8f8fd6}
-    
+
     """
     __HEADERS = ["ID", "Name", "Position"]
 
-    def __init__(self):
+    _cell_selected = None
+
+    def __init__(self, parent):
         super().__init__()
+        self._parent = parent
 
-        # title
-        title =Build.widget(QLabel, object_id="title", text="User Management")
+        title = Build.widget(QLabel, 'title', "User Manager")
 
+        """
+        LEFT PANEL
+        """
+        self._add_btn = QPushButton("Add User")
+        self._update_btn = QPushButton("Update User")
+        self._delete_btn = QPushButton("Delete User")
 
-        # toolbar
-        # search
-        self._search_user = Build.widget(QLineEdit, placeholder="Search User")
-        self._search_user.setMaximumWidth(150)
-        self._add_user = Build.widget(QPushButton, text="Add User")
-        self._add_user.setMaximumWidth(150)
-
-        toolbar_layout = Build.flex(self._search_user, self._add_user)
-        # toolbar_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        left_layout = Build.flex(self._add_btn, self._update_btn, self._delete_btn, direction='column')
 
 
-        # table
+        """
+        RIGHT PANEL
+        """
+        # SEARCH BAR
+        # search by name
+        self._search_field = Build.widget(QLineEdit, placeholder="Search by name")
+
+        # role dropdown
+        self._role_dropdown = Build.widget(QComboBox, items=['All', 'Admin', 'Staff'])
+
+        search_layout = Build.flex(self._search_field, self._role_dropdown)
+
+        # TABLE
         self._table = QTableWidget()
-        self._table.setColumnCount(3)
+        self._table.setColumnCount(len(UserManager.__HEADERS))
         self._table.setHorizontalHeaderLabels(UserManager.__HEADERS)
         self._table.verticalHeader().setVisible(False)
+        self._table.setMaximumWidth(400)
+
         # col size
-        self._table.setColumnWidth(0, 25)
-        self._table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
-        for col in range(1, self._table.columnCount()):
-            self._table.horizontalHeader().setSectionResizeMode(col, QHeaderView.ResizeMode.Stretch)
-        # table size
-        self._table.setMaximumWidth(1000)
-        self._table.setMinimumHeight(350)
-        table_layout = Build.flex(self._table)
+        self._table.setColumnWidth(0, 50)
+        self._table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        # self._table.setColumnWidth(2, 75)
+        # self._table.setColumnWidth(3, 200)
+
+        right_layout = Build.flex(search_layout, self._table, direction='column')
 
 
-        # layout
+        content_layout = Build.flex(left_layout, right_layout)
+
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(20, 50, 20, 250)
-        main_layout.setSpacing(25)
-        main_layout.addWidget(title)
-        main_layout.addLayout(toolbar_layout)
-        main_layout.addLayout(table_layout)
 
+        main_layout.addWidget(title)
+        main_layout.addLayout(content_layout)
 
         self.setStyleSheet(self.__STYLES)
 
+    """
+    UTILITY
+    """
+    def connectSignals(self, controller):
+        self._add_btn.clicked.connect(lambda _: self._openForm('add user'))
+        self._update_btn.clicked.connect(lambda _: self._openForm('update user'))
+        self._delete_btn.clicked.connect(lambda _: self._delete(controller))
+        self._table.cellClicked.connect(self._cellClicked)
 
     def default(self):
         ...
 
     def preload(self):
-        self.loadData()
+        self.loadUsers()
 
+    def _openForm(self, form_name):
+        self._parent.showOverlay(form_name)
+
+
+    """
+    FRONTEND
+    """
+    def _cellClicked(self, row, col):
+        self._cell_selected = {
+            'id': self._table.item(row, 0).text(),
+            'name': self._table.item(row, 1).text(),
+        }
+
+    def _openForm(self, frame_name):
+        self._parent.showOverlay(frame_name)
 
     """
     BACKEND
     """
-    def loadData(self):
+    def loadUsers(self):
+        # ensures table is empty before inserting data
+        self._table.setRowCount(0)
+
         users = UserRepository.fetchAll()
         for user in users:
             row = self._table.rowCount()
@@ -89,3 +127,29 @@ class UserManager(QWidget):
             full_name = f"{user['firstname']} {user['lastname']}"
             self._table.setItem(row, 1, QTableWidgetItem(full_name))
             self._table.setItem(row, 2, QTableWidgetItem(str(user["role"]).capitalize()))
+
+    def _delete(self, controller):
+        userdata = self._cell_selected
+
+        if userdata is None:
+            # prompt user to select a user
+            QMessageBox.warning(None, 'Warning', 'Please select a user.')
+            return
+
+        msg = QMessageBox()
+        msg.setWindowTitle('Deletion')
+        msg.setText(f"Confirm to delete\nuser: {userdata['name']}")
+
+        yes_btn = msg.addButton("Confirm", QMessageBox.ButtonRole.YesRole)
+        msg.addButton("Cancel", QMessageBox.ButtonRole.NoRole)
+
+        msg.exec()
+
+        if msg.clickedButton() == yes_btn:
+            QMessageBox.information(None, 'Deletion', "Deleting user\nPress OK to continue.")
+            controller.deleteUserdata(userdata) # send to database
+            self.loadUsers() # reload able
+            QMessageBox.information(None, 'Deletion', "User Deleted\nTable has been refresh.")
+
+        # reset selected cell after prompt
+        self._cell_selected = None

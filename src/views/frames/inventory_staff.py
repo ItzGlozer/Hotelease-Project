@@ -77,7 +77,7 @@ class InventoryStaff(QWidget):
         ...
 
     def preload(self):
-        self.loadData()
+        self.loadInventory()
 
     """
     FRONTEND
@@ -110,7 +110,6 @@ class InventoryStaff(QWidget):
         if self._cell_selected is None:
             QMessageBox.warning(self, "Warning", "Please select a cell")
 
-
         else:
             # open overlay with form and pass in cell data selected
             self._parent.showOverlay('add request', self._cell_selected)
@@ -121,7 +120,7 @@ class InventoryStaff(QWidget):
     """
     BACKEND
     """
-    def loadData(self):
+    def loadInventory(self):
         equipments = EquipmentRepository.fetchAll()
 
         for equipment in equipments:

@@ -114,7 +114,7 @@ class RequestManagerStaff(QWidget):
         ...
 
     def preload(self):
-        self.loadRequest()
+        self.loadAllRequest()
 
     def _disableButton(self):
         """
@@ -151,12 +151,12 @@ class RequestManagerStaff(QWidget):
                 return
             # cancel the request through database and refresh the table
             controller.cancelRequest(self._cell_selected)
-            self.loadRequest()
+            self.loadAllRequest()
 
         self._disableButton()
 
 
-    def loadRequest(self):
+    def loadAllRequest(self):
         requests = RequestRepository.fetchUserRequests(UserData().user_id)
 
         # ensures table is empty before inserting data

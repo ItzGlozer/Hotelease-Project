@@ -5,10 +5,9 @@ import time
 from src.model.user_data import UserData
 from src.resource.builder import Build
 from src.views.frames.request_manager_staff import RequestManagerStaff
-from src.views.frames.dashboard import Dashboard
 from src.views.frames.dashboard_admin import DashboardAdmin
 from src.views.frames.dashboard_staff import DashboardStaff
-from src.views.frames.inventory import Inventory
+from src.views.frames.inventory_admin import InventoryAdmin
 from src.views.frames.inventory_staff import InventoryStaff
 from src.views.frames.overlay import Overlay
 from src.views.frames.request_manager_admin import RequestManagerAdmin
@@ -31,9 +30,9 @@ class MainContent(QFrame):
 
     def _admin_setup(self) -> list:
         self._dashboard = DashboardAdmin()
-        self._inventory = Inventory(self)
+        self._inventory = InventoryAdmin(self)
         self._request_manager = RequestManagerAdmin()
-        self._user_manager = UserManager()
+        self._user_manager = UserManager(self)
         return [self._dashboard, self._inventory, self._request_manager, self._user_manager]
 
     def _staff_setup(self) -> list:
@@ -48,34 +47,35 @@ class MainContent(QFrame):
             frame.hide()
 
 
-    def connectSignal(self, controller):
+    def connectSignals(self, controller):
         self._overlay.connectSignals(controller)
         self._request_manager.connectSignals(controller)
-        self._inventory.connectSignals()
+        self._inventory.connectSignals(controller)
+        self._request_manager.connectSignals(controller)
         if UserData.is_admin:
-            ...
+            self._user_manager.connectSignals(controller)
 
     def default(self):
-        if UserData.is_admin:
-            self._user_manager.default()
         self._dashboard.default()
         self._inventory.default()
         self._request_manager.default()
         self._overlay.default()
+        if UserData.is_admin:
+            self._user_manager.default()
 
         # hide all frames except dashboard
         self._hideAll()
         time.sleep(0.01)
 
-        self._request_manager.show()
+        self._user_manager.show()
 
 
     def pre_load(self):
-        if UserData.is_admin:
-            self._user_manager.preload()
         self._dashboard.preload()
         self._inventory.preload()
         self._request_manager.preload()
+        if UserData.is_admin:
+            self._user_manager.preload()
 
 
     def showOverlay(self, form_name, pre_data=None):
@@ -83,10 +83,12 @@ class MainContent(QFrame):
 
     def refresh(self, frame_name):
         match frame_name:
-            case "inventory":
+            case 'inventory':
                 self._inventory.loadInventory()
-            case "request":
-                self._request_manager.loadRequest()
+            case 'request':
+                self._request_manager.loadAllRequest()
+            case 'users':
+                self._user_manager.loadUsers()
 
     def showFrame(self, frame_name: str):
         self._hideAll()
