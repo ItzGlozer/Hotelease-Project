@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import QFrame, QSizePolicy, QVBoxLayout
 from src.views.frames.overlay_forms.add_equipment_form import AddEquipmentForm
 from src.views.frames.overlay_forms.add_request_form import AddRequestForm
 from src.views.frames.overlay_forms.add_user_form import AddUserForm
+from src.views.frames.overlay_forms.update_user_form import UpdateUserForm
 
 
 class Overlay(QFrame):
@@ -19,6 +20,7 @@ class Overlay(QFrame):
         self._add_equipment_form = AddEquipmentForm(self)
         self._add_request_form = AddRequestForm(self)
         self._add_user_form = AddUserForm(self)
+        self._update_user_form = UpdateUserForm(self)
 
 
         # layout
@@ -26,16 +28,20 @@ class Overlay(QFrame):
         main_layout.addWidget(self._add_equipment_form)
         main_layout.addWidget(self._add_request_form)
         main_layout.addWidget(self._add_user_form)
+        main_layout.addWidget(self._update_user_form)
 
     def connectSignals(self, controller):
         self._add_equipment_form.connectSignals(controller)
         self._add_request_form.connectSignals(controller)
         self._add_user_form.connectSignals(controller)
+        self._update_user_form.connectSignals(controller)
 
     def default(self):
         self.hideOverlay()
         self._add_equipment_form.default()
         self._add_request_form.default()
+        self._add_user_form.default()
+        self._update_user_form.default()
 
 
     def hideOverlay(self):
@@ -51,7 +57,7 @@ class Overlay(QFrame):
             case "add user":
                 self._add_user_form.showForm()
             case "update user":
-                # self._add_user_form.showForm()
+                self._update_user_form.showForm(pre_data)
                 ...
 
 
