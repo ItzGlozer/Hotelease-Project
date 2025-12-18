@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QFrame, QSizePolicy, QVBoxLayout
 
 from src.views.frames.overlay_forms.add_equipment_form import AddEquipmentForm
 from src.views.frames.overlay_forms.add_request_form import AddRequestForm
+from src.views.frames.overlay_forms.add_user_form import AddUserForm
 
 
 class Overlay(QFrame):
@@ -17,17 +18,19 @@ class Overlay(QFrame):
 
         self._add_equipment_form = AddEquipmentForm(self)
         self._add_request_form = AddRequestForm(self)
+        self._add_user_form = AddUserForm(self)
 
 
         # layout
         main_layout = QVBoxLayout(self)
         main_layout.addWidget(self._add_equipment_form)
         main_layout.addWidget(self._add_request_form)
-
+        main_layout.addWidget(self._add_user_form)
 
     def connectSignals(self, controller):
         self._add_equipment_form.connectSignals(controller)
         self._add_request_form.connectSignals(controller)
+        self._add_user_form.connectSignals(controller)
 
     def default(self):
         self.hideOverlay()
@@ -42,9 +45,15 @@ class Overlay(QFrame):
         self.show()
         match form_name:
             case "add equipment":
-                self._add_equipment_form.show()
+                self._add_equipment_form.showForm()
             case "add request":
                 self._add_request_form.showForm(pre_data)
+            case "add user":
+                self._add_user_form.showForm()
+            case "update user":
+                # self._add_user_form.showForm()
+                ...
+
 
     def refresh(self, frame_name):
         self._parent.refresh(frame_name)

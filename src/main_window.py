@@ -22,7 +22,7 @@ class MainWindow(Window):
 
         # state
         self.main_content.default()
-        # self.main_content.pre_load()
+        self.main_content.pre_load()
 
 
 
@@ -44,7 +44,7 @@ class MainWindow(Window):
     """
     def setController(self, controller):
         self._controller = controller
-        self.main_content.connectSignal(controller)
+        self.main_content.connectSignals(controller)
 
 
 

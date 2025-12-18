@@ -15,7 +15,22 @@ class RequestRepository:
     @staticmethod
     def fetchAllRequests() -> list:
         cursor = Database.get_cursor()
-        query = "SELECT * FROM `request`;"
+        query = """
+        SELECT
+            r.id,
+            e.name AS equipment_name,
+            r.quantity,
+            r.entry_type,
+            r.status,
+            CONCAT(u1.firstname, ' ', u1.lastname) AS requested_by,
+            CONCAT(u2.firstname, ' ', u2.lastname) AS validated_by,
+            r.requested_at,
+            r.approved_at
+        FROM request r
+        JOIN equipment e ON r.equipment_id = e.id
+        JOIN `user` u1 ON r.requested_by_id = u1.id
+        LEFT JOIN `user` u2 ON r.approved_by_id = u2.id;
+        """
         cursor.execute(query)
         requests = cursor.fetchall()
         Database.close()
@@ -44,6 +59,16 @@ class RequestRepository:
         Database.close()
         return requests
 
+    @staticmethod
+    def validateUserRequest(request: dict):
+        cursor = Database.get_cursor()
+        query = """
+        UPDATE `request`
+        SET `status`=%s, `approved_by_id`=%s, approved_at=CURRENT_TIMESTAMP
+        WHERE `id`=%s;"""
+        cursor.execute(query, (request['status'], request['user_id'], request['id'],))
+        Database.commit()
+        Database.close()
 
     @staticmethod
     def deleteUserRequest(request: dict):
@@ -54,13 +79,24 @@ class RequestRepository:
         Database.close()
 
 
+
+
 if __name__ == '__main__':
-    data = {
+    create_request = {
         "user_id": 1,
         "item_id": 1,
         "type": 'stock in',
         "quantity": 2
     }
-    # RequestRepository.addRequest(data)
-    results = RequestRepository.fetchUserRequests(2)
-    print(results)
+    # RequestRepository.addRequest(create_request)
+
+    validate_request = {
+        'id': 6,
+        'user_id': 1,
+        'status': 'approved'
+    }
+    # RequestRepository.validateUserRequest(validate_request)
+
+
+    # results = RequestRepository.fetchUserRequests(2)
+    # print(results)

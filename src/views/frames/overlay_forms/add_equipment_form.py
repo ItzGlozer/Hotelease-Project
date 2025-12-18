@@ -17,10 +17,6 @@ class AddEquipmentForm(QWidget):
         name_lbl, self._name_field = self.__buildInputField("Equipment Name:", "ex. Vacuum")
         name_layout = Build.flex(name_lbl, self._name_field, direction="column")
 
-        # quantity
-        quantity_lbl, self._quantity_field = self.__buildInputField("Quantity:", "ex. 100")
-        quantity_layout = Build.flex(quantity_lbl, self._quantity_field, direction="column")
-
         # buttons
         self._submit_btn = QPushButton("Submit")
         self._cancel_btn = QPushButton("Cancel")
@@ -28,10 +24,10 @@ class AddEquipmentForm(QWidget):
 
 
         # layout
-        main_layout = Build.flex(name_layout, quantity_layout, button_layout,
+        main_layout = Build.flex(name_layout, button_layout,
                                  direction="column", parent=self)
         main_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
-
+        main_layout.setSpacing(12)
 
         self.setStyleSheet(self.__STYLES)
 
@@ -42,12 +38,19 @@ class AddEquipmentForm(QWidget):
     @property
     def __get_input_data(self) -> dict:
         name = self._name_field.text()
-        quantity = self._quantity_field.text()
         self.__closeForm()
-        return {"name": name, "quantity": quantity}
+        return {"name": name}
+
+    def connectSignals(self, controller):
+        self._submit_btn.clicked.connect(lambda _: self._submit(controller))
+        self._cancel_btn.clicked.connect(self.__closeForm)
+
     """
     FRONTEND
     """
+    def showForm(self):
+        self.show()
+
     def default(self):
         self.hide()
 
@@ -57,7 +60,6 @@ class AddEquipmentForm(QWidget):
         """
         self.hide()
         self._overlay.hideOverlay()
-        self._quantity_field.clear()
         self._name_field.clear()
 
 
@@ -65,9 +67,10 @@ class AddEquipmentForm(QWidget):
     """
     BACKEND
     """
-    def connectSignals(self, controller):
-        self._submit_btn.clicked.connect(lambda _: controller.submitEquipment(self.__get_input_data))
-        self._cancel_btn.clicked.connect(self.__closeForm)
+    def _submit(self, controller):
+        data = self.__get_input_data
+        controller.submitEquipment(data) # send to database
+        self._overlay.refresh('inventory') # refresh table
 
 
 

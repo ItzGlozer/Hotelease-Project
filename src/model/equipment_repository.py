@@ -1,13 +1,15 @@
 from src.model.database import Database
 
+from mysql.connector import Error, IntegrityError
+
 
 class EquipmentRepository:
 
     @staticmethod
     def addEquipment(data: dict):
         cursor = Database.get_cursor()
-        query = "INSERT INTO `equipment`(`name`, `quantity`) VALUES (%s, %s)"
-        cursor.execute(query, (data['name'], data['quantity'],))
+        query = "INSERT INTO `equipment`(`name`) VALUES (%s)"
+        cursor.execute(query, (data['name'],))
         Database.commit()
         Database.close()
 
@@ -31,6 +33,18 @@ class EquipmentRepository:
         Database.close()
         return equipments
 
+    @staticmethod
+    def deleteEquipment(data: dict) -> bool:
+        try:
+            cursor = Database.get_cursor()
+            query = "DELETE FROM `equipment` WHERE `id` = %s"
+            cursor.execute(query, (data['id'],))
+            Database.commit()
+            Database.close()
+            return True
+        except IntegrityError:
+            return False
+
 
 
 
@@ -43,7 +57,6 @@ if __name__ == '__main__':
 
 
     items = EquipmentRepository.fetchAll()
-    print(type(items))
     for item in items:
         # Loop through the keys of the current dictionary
         print(item)
