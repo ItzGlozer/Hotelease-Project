@@ -46,7 +46,11 @@ class UserRepository:
 
     @staticmethod
     def updateUser(userdata: dict):
-        ...
+        cursor = Database.get_cursor()
+        query = "UPDATE user SET firstname = %s, lastname = %s, role = %s WHERE id = %s"
+        cursor.execute(query, (userdata['firstname'], userdata['lastname'], userdata['role'], userdata['id']))
+        Database.commit()
+        Database.close()
 
     @staticmethod
     def deleteUser(userdata: dict):

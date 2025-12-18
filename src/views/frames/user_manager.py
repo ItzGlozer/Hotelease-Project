@@ -85,7 +85,7 @@ class UserManager(QWidget):
     """
     def connectSignals(self, controller):
         self._add_btn.clicked.connect(lambda _: self._openForm('add user'))
-        self._update_btn.clicked.connect(lambda _: self._openForm('update user'))
+        self._update_btn.clicked.connect(self._update)
         self._delete_btn.clicked.connect(lambda _: self._delete(controller))
         self._table.cellClicked.connect(self._cellClicked)
 
@@ -108,8 +108,8 @@ class UserManager(QWidget):
             'name': self._table.item(row, 1).text(),
         }
 
-    def _openForm(self, frame_name):
-        self._parent.showOverlay(frame_name)
+    def _openForm(self, frame_name, pre_data=None):
+        self._parent.showOverlay(frame_name, pre_data)
 
     """
     BACKEND
@@ -127,6 +127,16 @@ class UserManager(QWidget):
             full_name = f"{user['firstname']} {user['lastname']}"
             self._table.setItem(row, 1, QTableWidgetItem(full_name))
             self._table.setItem(row, 2, QTableWidgetItem(str(user["role"]).capitalize()))
+
+    def _update(self):
+        pre_data = self._cell_selected
+
+        if pre_data is None:
+            # prompt user to select a user
+            QMessageBox.warning(None, 'Warning', 'Please select a user.')
+            return
+
+        self._openForm('update user', pre_data)
 
     def _delete(self, controller):
         userdata = self._cell_selected
